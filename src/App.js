@@ -1,32 +1,25 @@
-import logo from './logo.svg';
 import './App.css';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
-import { SearchProvider, WithSearch } from "@elastic/react-search-ui";
-import SearchBar from './SearchBar';
-import AppSearchAPIConnector from '@elastic/search-ui-app-search-connector/lib/AppSearchAPIConnector';
-
-const connector = new AppSearchAPIConnector({
-  searchKey: "search-5j1xsnh31jjm1qd55szdq7qf",
-  engineName: "wpsearch",
-  endpointBase: "http://localhost:3002"
-})
+import ClientsSearchBar from './Components/ClientsSearchBar';
+import { Tab, Tabs } from 'react-bootstrap';
+import { useState } from 'react';
 
 function App() {
-  const config = {
-    apiConnector = connector
-  };
+  const serviceUrl = "https://localhost:44373/api";
+  const searchUrl = "https://trial-deployment.ent.europe-west2.gcp.elastic-cloud.com";
 
-  return (
-    <SearchProvider config={config} >
-      <WithSearch mapContextToProps={({ wasSearched }) => ({ wasSearched })}>
-        {({ wasSearched }) => {
-          return <div className="App">
-            <SearchBar wasSearched={wasSearched} />
-          </div>
-        }}
-      </WithSearch>
-    </SearchProvider>
-  );
+  const [active, setActive] = useState("clients");
+
+  return <Tabs
+    activeKey={active}
+    onSelect={setActive}
+  >
+    <Tab eventKey="clients" title="Clients">
+      <ClientsSearchBar serviceUrl={serviceUrl} searchUrl={searchUrl} engine={{}} />
+    </Tab>
+
+  </Tabs>
 }
 
 export default App;

@@ -1,0 +1,22 @@
+{
+    "engineName": "clients",
+    "endpointBase": "https://trial-deployment.ent.europe-west2.gcp.elastic-cloud.com",
+    "searchKey": "search-45si746m91gpgdtq2kve9gaj",
+    "resultFields": [
+        "date_of_birth",
+        "name",
+        "last_name",
+        "date_joined",
+        "first_name",
+        "id"
+    ],
+    "sortFields": [
+        "date_joined",
+        "last_name"
+    ],
+    "facets": [
+        "date_joined",
+        "date_of_birth"
+    ],
+    "titleField": "name"
+}

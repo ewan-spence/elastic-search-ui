@@ -1,7 +1,22 @@
-import { SearchProvider, WithSearch, ErrorBoundary } from "@elastic/react-search-ui";
-import { Layout, SearchBox } from "@elastic/react-search-ui-views";
-import { Facet, Paging, PagingInfo, Results, ResultsPerPage, Sorting } from "@elastic/react-search-ui/lib/containers";
+import {
+  ErrorBoundary,
+  Facet,
+  SearchProvider,
+  Paging,
+  PagingInfo,
+  Results,
+  ResultsPerPage,
+  SearchBox,
+  Sorting,
+  WithSearch
+} from "@elastic/react-search-ui";
+
+import { Layout } from "@elastic/react-search-ui-views";
+import "@elastic/react-search-ui-views/lib/styles/styles.css";
+
 import AppSearchAPIConnector from "@elastic/search-ui-app-search-connector/lib/AppSearchAPIConnector";
+
+
 import React, { useEffect, useState } from "react";
 
 export default function ClientsSearchBar({ serviceUrl, searchUrl }) {
@@ -12,15 +27,17 @@ export default function ClientsSearchBar({ serviceUrl, searchUrl }) {
       fetch(serviceUrl + "/clients", {
         method: 'GET',
       }).then(res => {
-        var searchKey = res.text;
-        var engineName = "clients";
-        var endpointBase = searchUrl;
+        res.text().then(text => {
+          var searchKey = text;
+          var engineName = "clients";
+          var endpointBase = searchUrl;
 
-        setConnector(new AppSearchAPIConnector({
-          searchKey,
-          engineName,
-          endpointBase
-        }));
+          setConnector(new AppSearchAPIConnector({
+            searchKey,
+            engineName,
+            endpointBase
+          }));
+        })
       });
     }
   });
@@ -32,13 +49,37 @@ export default function ClientsSearchBar({ serviceUrl, searchUrl }) {
   }];
   const facets = {};
 
+  const resultFields = [
+    "name",
+    "date_of_birth",
+    "date_joined",
+  ];
+
   const searchOptions = {
-    result_fields: [
+    result_fields: {
+      ...resultFields.reduce((acc, n) => {
+        acc = acc || {};
+        acc[n] = {
+          raw: {},
+          snippet: {
+            size: 100,
+            fallback: true
+          }
+        }
+        return acc;
+      }, undefined)
+    },
+    search_fields: undefined
+  }
 
-    ],
-    search_fields: [
-
-    ]
+  const autocompleteQuery = {
+    suggestions: {
+      types: {
+        documents: {
+          fields: []
+        }
+      }
+    }
   }
 
   const config = {
@@ -46,16 +87,17 @@ export default function ClientsSearchBar({ serviceUrl, searchUrl }) {
       facets: facets,
       ...searchOptions
     },
-    connector,
-    alwaysSearchOnInitialLoad: false
+    apiConnector: connector,
+    autocompleteQuery,
+    alwaysSearchOnInitialLoad: true
   }
 
   if (connector) {
-    return (<SearchProvider config={config}>
-      <WithSearch mapContextToProps={({ wasSearched }) => ({ wasSearched })}>
-        {({ wasSearched }) => {
-          return (
-            <div className="App">
+    return (
+      <SearchProvider config={config}>
+        <WithSearch mapContextToProps={({ wasSearched }) => ({ wasSearched })}>
+          {({ wasSearched }) => {
+            return (
               <ErrorBoundary>
                 <Layout
                   header={<SearchBox autocompleteSuggestions={false} />}
@@ -89,11 +131,10 @@ export default function ClientsSearchBar({ serviceUrl, searchUrl }) {
                   bodyFooter={<Paging />}
                 />
               </ErrorBoundary>
-            </div>
-          );
-        }}
-      </WithSearch>
-    </SearchProvider>);
+            );
+          }}
+        </WithSearch>
+      </SearchProvider>);
   } else {
     return null;
   }

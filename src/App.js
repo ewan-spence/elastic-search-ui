@@ -11,15 +11,18 @@ function App() {
 
   const [active, setActive] = useState("clients");
 
-  return <Tabs
-    activeKey={active}
-    onSelect={setActive}
-  >
-    <Tab eventKey="clients" title="Clients">
-      <ClientsSearchBar serviceUrl={serviceUrl} searchUrl={searchUrl} engine={{}} />
-    </Tab>
+  return <div className='App'>
 
-  </Tabs>
+    <Tabs
+      activeKey={active}
+      onSelect={setActive}
+    >
+      <Tab eventKey="clients" title="Clients">
+        <ClientsSearchBar serviceUrl={serviceUrl} searchUrl={searchUrl} engine={{}} />
+      </Tab>
+
+    </Tabs>
+  </div>
 }
 
 export default App;

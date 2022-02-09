@@ -1,6 +1,7 @@
 import config from "./Engine.json";
 
 import AppSearchAPIConnector from "@elastic/search-ui-app-search-connector/lib/AppSearchAPIConnector";
+import moment from "moment";
 
 async function configureConnector(serviceUrl, searchUrl) {
   var response = await fetch(serviceUrl + "/clients", {
@@ -62,15 +63,61 @@ export function buildSortOptionsFromEngine() {
   ];
 }
 
+export function getFilterableFacetsFromEngine() {
+  return config.filterableFacets || [];
+}
+
 export function buildFacetsFromEngine() {
-  return (config.facets || []).reduce((acc, facetField) => {
+  var facets = (config.facets || []).reduce((acc, facetField) => {
     acc = acc || {};
+
     acc[facetField] = {
       type: "value",
-      size: 100
+      size: 100,
     };
     return acc;
   }, undefined)
+
+  facets["date_joined"] = {
+    type: "range",
+    ranges: [
+      {
+        to: moment().subtract(5, "years").toISOString(),
+        name: "More than 5 years ago"
+      },
+      {
+        from: moment().subtract(5, "years").toISOString(),
+        to: moment().toISOString(),
+        name: "Within the last 5 years"
+      },
+      {
+        from: moment().subtract(1, "years").toISOString(),
+        name: "Within the last year"
+      }
+    ],
+  }
+
+  facets["date_of_birth"] = {
+    type: "range",
+    ranges: [
+      {
+        to: moment().subtract(66, "years").toISOString(),
+        name: "Retirement age"
+      },
+      {
+        from: moment().subtract(66, "years").toISOString(),
+        to: moment().subtract(50, "years").toISOString(),
+        name: "Older than 50, but not retirement age"
+      },
+      {
+        from: moment().subtract(50, "years").toISOString(),
+        to: moment().toISOString(),
+        name: "Younger than 50"
+      }
+    ]
+  }
+
+  return facets;
 }
 
 export async function makeConfig(serviceUrl, searchUrl) {
@@ -80,19 +127,17 @@ export async function makeConfig(serviceUrl, searchUrl) {
   const searchFields = config.searchFields;
 
   const searchOptions = {
-    result_fields: {
-      ...resultFields.reduce((acc, n) => {
-        acc = acc || {};
-        acc[n] = {
-          raw: {},
-          snippet: {
-            size: 100,
-            fallback: true
-          }
+    result_fields: resultFields.reduce((acc, n) => {
+      acc = acc || {};
+      acc[n] = {
+        raw: {},
+        snippet: {
+          size: 100,
+          fallback: true
         }
-        return acc;
-      }, undefined)
-    },
+      }
+      return acc;
+    }, undefined),
     search_fields: searchFields
   }
 

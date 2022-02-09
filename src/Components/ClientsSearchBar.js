@@ -16,12 +16,13 @@ import "@elastic/react-search-ui-views/lib/styles/styles.css";
 
 import React, { useEffect, useState } from "react";
 
-import { buildFacetsFromEngine, buildSortOptionsFromEngine, makeConfig } from "../Config/Clients/ConfigBuilder";
+import { buildFacetsFromEngine, buildSortOptionsFromEngine, getFilterableFacetsFromEngine, makeConfig } from "../Config/Clients/ConfigBuilder";
 
 export default function ClientsSearchBar({ serviceUrl, searchUrl }) {
   const [config, setConfig] = useState();
 
   const facets = buildFacetsFromEngine();
+  const filterableFacets = getFilterableFacetsFromEngine();
 
   useEffect(() => {
     makeConfig(serviceUrl, searchUrl)
@@ -46,7 +47,7 @@ export default function ClientsSearchBar({ serviceUrl, searchUrl }) {
                         />
                       )}
                       {Object.keys(facets).map(field => (
-                        <Facet key={field} field={field} label={field} />
+                        <Facet isFilterable={filterableFacets.includes(field)} key={field} field={field} label={field.replaceAll(/[-_]/g, " ")} />
                       ))}
                     </div>
                   }

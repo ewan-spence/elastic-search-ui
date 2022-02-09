@@ -14,85 +14,21 @@ import {
 import { Layout } from "@elastic/react-search-ui-views";
 import "@elastic/react-search-ui-views/lib/styles/styles.css";
 
-import AppSearchAPIConnector from "@elastic/search-ui-app-search-connector/lib/AppSearchAPIConnector";
-
-
 import React, { useEffect, useState } from "react";
 
+import { buildFacetsFromEngine, buildSortOptionsFromEngine, makeConfig } from "../Config/Clients/ConfigBuilder";
+
 export default function ClientsSearchBar({ serviceUrl, searchUrl }) {
-  const [connector, setConnector] = useState();
+  const [config, setConfig] = useState();
+
+  const facets = buildFacetsFromEngine();
 
   useEffect(() => {
-    if (!connector) {
-      fetch(serviceUrl + "/clients", {
-        method: 'GET',
-      }).then(res => {
-        res.text().then(text => {
-          var searchKey = text;
-          var engineName = "clients";
-          var endpointBase = searchUrl;
+    makeConfig(serviceUrl, searchUrl)
+      .then(res => setConfig(res));
+  })
 
-          setConnector(new AppSearchAPIConnector({
-            searchKey,
-            engineName,
-            endpointBase
-          }));
-        })
-      });
-    }
-  });
-
-  const sorts = [{
-    name: "Relevance",
-    value: "",
-    dirction: ""
-  }];
-  const facets = {};
-
-  const resultFields = [
-    "name",
-    "date_of_birth",
-    "date_joined",
-  ];
-
-  const searchOptions = {
-    result_fields: {
-      ...resultFields.reduce((acc, n) => {
-        acc = acc || {};
-        acc[n] = {
-          raw: {},
-          snippet: {
-            size: 100,
-            fallback: true
-          }
-        }
-        return acc;
-      }, undefined)
-    },
-    search_fields: undefined
-  }
-
-  const autocompleteQuery = {
-    suggestions: {
-      types: {
-        documents: {
-          fields: []
-        }
-      }
-    }
-  }
-
-  const config = {
-    searchQuery: {
-      facets: facets,
-      ...searchOptions
-    },
-    apiConnector: connector,
-    autocompleteQuery,
-    alwaysSearchOnInitialLoad: true
-  }
-
-  if (connector) {
+  if (config) {
     return (
       <SearchProvider config={config}>
         <WithSearch mapContextToProps={({ wasSearched }) => ({ wasSearched })}>
@@ -106,7 +42,7 @@ export default function ClientsSearchBar({ serviceUrl, searchUrl }) {
                       {wasSearched && (
                         <Sorting
                           label={"Sort By"}
-                          sortOptions={sorts}
+                          sortOptions={buildSortOptionsFromEngine()}
                         />
                       )}
                       {Object.keys(facets).map(field => (
@@ -135,9 +71,8 @@ export default function ClientsSearchBar({ serviceUrl, searchUrl }) {
           }}
         </WithSearch>
       </SearchProvider>);
+
   } else {
     return null;
   }
-
 }
-

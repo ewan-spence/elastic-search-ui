@@ -32,7 +32,6 @@ export function formatFieldName(field) {
       : (word.substring(0, 1).toUpperCase().concat(word.substring(1)))
   )
 
-
   return fieldWordsCapitalised.join(" ");
 }
 

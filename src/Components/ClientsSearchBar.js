@@ -26,7 +26,7 @@ export default function ClientsSearchBar({ serviceUrl, searchUrl }) {
   useEffect(() => {
     makeConfig(serviceUrl, searchUrl)
       .then(res => setConfig(res));
-  })
+  }, [serviceUrl, searchUrl, setConfig])
 
   if (config) {
     return (
@@ -71,7 +71,6 @@ export default function ClientsSearchBar({ serviceUrl, searchUrl }) {
           }}
         </WithSearch>
       </SearchProvider>);
-
   } else {
     return null;
   }

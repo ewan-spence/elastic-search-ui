@@ -18,9 +18,8 @@ function App() {
       onSelect={setActive}
     >
       <Tab eventKey="clients" title="Clients">
-        <ClientsSearchBar serviceUrl={serviceUrl} searchUrl={searchUrl} engine={{}} />
+        <ClientsSearchBar serviceUrl={serviceUrl} searchUrl={searchUrl} />
       </Tab>
-
     </Tabs>
   </div>
 }

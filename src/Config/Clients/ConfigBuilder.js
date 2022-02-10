@@ -11,7 +11,7 @@ async function configureConnector(serviceUrl, searchUrl) {
   if (response.ok) {
     var searchKey = await response.text()
 
-    var engineName = "clients";
+    var engineName = config.engineName;
     var endpointBase = searchUrl;
 
     return new AppSearchAPIConnector({
@@ -25,6 +25,10 @@ async function configureConnector(serviceUrl, searchUrl) {
 }
 
 export function formatFieldName(field) {
+  if (Object.keys(config.facetFieldNames).includes(field)) {
+    return config.facetFieldNames[field];
+  }
+
   var fieldWords = field.split(new RegExp("[-_]"));
 
   var fieldWordsCapitalised = fieldWords.map(word =>
@@ -123,7 +127,7 @@ export function buildFacetsFromEngine() {
 export async function makeConfig(serviceUrl, searchUrl) {
   const facets = buildFacetsFromEngine();
 
-  const resultFields = config.resultFields;
+  const resultFields = config.resultFields || [];
   const searchFields = config.searchFields;
 
   const searchOptions = {

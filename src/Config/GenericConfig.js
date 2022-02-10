@@ -61,7 +61,6 @@ export function buildSortOptionsFromEngine(config) {
 }
 
 export function getFilterableFacetsFromEngine(config) {
-  console.log(config.filterableFacets)
   return config.filterableFacets || [];
 }
 

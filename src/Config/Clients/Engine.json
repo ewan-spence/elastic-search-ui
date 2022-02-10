@@ -1,5 +1,5 @@
 {
-  "engineName": "clients",
+  "engineName": "more-clients",
   "endpointBase": "https://trial-deployment.ent.europe-west2.gcp.elastic-cloud.com",
   "sortFields": [
     "date_joined",

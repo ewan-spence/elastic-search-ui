@@ -10,13 +10,13 @@ export function buildClientFacets() {
     type: "range",
     ranges: [
       {
-        to: moment().subtract(5, "years").toISOString(),
-        name: "More than 5 years ago"
+        to: moment().subtract(3, "years").toISOString(),
+        name: "More than 3 years ago"
       },
       {
-        from: moment().subtract(5, "years").toISOString(),
+        from: moment().subtract(3, "years").toISOString(),
         to: moment().toISOString(),
-        name: "Within the last 5 years"
+        name: "Within the last 3 years"
       },
       {
         from: moment().subtract(1, "years").toISOString(),
@@ -48,12 +48,16 @@ export function buildClientFacets() {
   return facets;
 }
 
-export function formatClientFieldName(field) {
-  if (Object.keys(config.facetFieldNames).includes(field)) {
-    return config.facetFieldNames[field];
+export function formatFacetFieldName(facetField) {
+  if (Object.keys(config.facetFieldNames || {}).includes(facetField)) {
+    return config.facetFieldNames[facetField];
   } else {
-    return formatFieldName(field);
+    return formatFieldName(facetField);
   }
+}
+
+export function formatClientFieldName(field) {
+  return formatFieldName(field);
 }
 
 export function buildClientSortOptions() {

@@ -17,7 +17,7 @@ import "@elastic/react-search-ui-views/lib/styles/styles.css";
 
 import React, { useEffect, useState } from "react";
 
-import { buildClientFacets, buildClientSortOptions, formatClientFieldName, getClientFilterableFacets, makeClientConfig } from "../Config/Clients/ConfigBuilder";
+import { buildClientFacets, buildClientSortOptions, formatClientFieldName, formatFacetFieldName, getClientFilterableFacets, makeClientConfig } from "../Config/Clients/ConfigBuilder";
 
 export default function ClientsSearchBar({ serviceUrl, searchUrl }) {
   const [config, setConfig] = useState();
@@ -52,7 +52,7 @@ export default function ClientsSearchBar({ serviceUrl, searchUrl }) {
                           isFilterable={filterableFacets.includes(field)}
                           key={field}
                           field={field}
-                          label={formatClientFieldName(field)}
+                          label={formatFacetFieldName(field)}
                           view={SingleLinksFacet}
                         />
                       ))}
@@ -60,21 +60,7 @@ export default function ClientsSearchBar({ serviceUrl, searchUrl }) {
                   }
                   bodyContent={
                     <Results
-                      view={({ children }) => {
-                        return children.map(result => {
-                          var resultData = {};
-
-                          Object.keys(result.props.result)
-                            .forEach(key => resultData[formatClientFieldName(key)] = result.props.result[key])
-
-                          return <Result
-                            key={result.key}
-                            result={resultData}
-                            titleField="Name"
-                          ></Result>
-                        })
-                      }}
-                    />
+                      titleField="name" />
                   }
                   bodyHeader={
                     <React.Fragment>

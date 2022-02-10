@@ -17,16 +17,16 @@ import "@elastic/react-search-ui-views/lib/styles/styles.css";
 
 import React, { useEffect, useState } from "react";
 
-import { buildFacetsFromEngine, buildSortOptionsFromEngine, formatFieldName, getFilterableFacetsFromEngine, makeConfig } from "../Config/Clients/ConfigBuilder";
+import { buildClientFacets, buildClientSortOptions, formatClientFieldName, getClientFilterableFacets, makeClientConfig } from "../Config/Clients/ConfigBuilder";
 
 export default function ClientsSearchBar({ serviceUrl, searchUrl }) {
   const [config, setConfig] = useState();
 
-  const facets = buildFacetsFromEngine();
-  const filterableFacets = getFilterableFacetsFromEngine();
+  const facets = buildClientFacets();
+  const filterableFacets = getClientFilterableFacets();
 
   useEffect(() => {
-    makeConfig(serviceUrl, searchUrl)
+    makeClientConfig(serviceUrl, searchUrl)
       .then(res => setConfig(res));
   }, [serviceUrl, searchUrl, setConfig])
 
@@ -44,7 +44,7 @@ export default function ClientsSearchBar({ serviceUrl, searchUrl }) {
                       {wasSearched && (
                         <Sorting
                           label={"Sort By"}
-                          sortOptions={buildSortOptionsFromEngine()}
+                          sortOptions={buildClientSortOptions()}
                         />
                       )}
                       {Object.keys(facets).map(field => (
@@ -52,7 +52,7 @@ export default function ClientsSearchBar({ serviceUrl, searchUrl }) {
                           isFilterable={filterableFacets.includes(field)}
                           key={field}
                           field={field}
-                          label={formatFieldName(field)}
+                          label={formatClientFieldName(field)}
                           view={SingleLinksFacet}
                         />
                       ))}
@@ -65,9 +65,7 @@ export default function ClientsSearchBar({ serviceUrl, searchUrl }) {
                           var resultData = {};
 
                           Object.keys(result.props.result)
-                            .forEach(key => resultData[formatFieldName(key)] = result.props.result[key])
-
-                          console.log(Object.keys(resultData))
+                            .forEach(key => resultData[formatClientFieldName(key)] = result.props.result[key])
 
                           return <Result
                             key={result.key}

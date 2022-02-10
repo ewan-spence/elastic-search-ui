@@ -1,0 +1,17 @@
+{
+    "engineName": "portfolios",
+    "endpointBase": "https://trial-deployment.ent.europe-west2.gcp.elastic-cloud.com",
+    "sortFields": [
+        "date_created",
+        "advisor_name",
+        "client_name"
+    ],
+    "facets": [
+        "date_created",
+        "holdings"
+    ],
+    "filterableFacets": [
+        "holdings"
+    ],
+    "titleField": "client_name"
+}

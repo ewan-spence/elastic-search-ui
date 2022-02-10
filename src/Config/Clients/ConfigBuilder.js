@@ -1,86 +1,10 @@
 import config from "./Engine.json";
 
-import AppSearchAPIConnector from "@elastic/search-ui-app-search-connector/lib/AppSearchAPIConnector";
 import moment from "moment";
+import { buildFacetsFromEngine, buildSortOptionsFromEngine, formatFieldName, getFilterableFacetsFromEngine, makeConfig } from "../GenericConfig";
 
-async function configureConnector(serviceUrl, searchUrl) {
-  var response = await fetch(serviceUrl + "/clients", {
-    method: 'GET',
-  });
-
-  if (response.ok) {
-    var searchKey = await response.text()
-
-    var engineName = config.engineName;
-    var endpointBase = searchUrl;
-
-    return new AppSearchAPIConnector({
-      searchKey,
-      engineName,
-      endpointBase
-    });
-  } else {
-    return false;
-  }
-}
-
-export function formatFieldName(field) {
-  if (Object.keys(config.facetFieldNames).includes(field)) {
-    return config.facetFieldNames[field];
-  }
-
-  var fieldWords = field.split(new RegExp("[-_]"));
-
-  var fieldWordsCapitalised = fieldWords.map(word =>
-    word.length <= 3
-      ? word
-      : (word.substring(0, 1).toUpperCase().concat(word.substring(1)))
-  )
-
-  return fieldWordsCapitalised.join(" ");
-}
-
-export function buildSortOptionsFromEngine() {
-  return [
-    {
-      name: "Relevance",
-      value: "",
-      direction: ""
-    },
-    ...(config.sortFields || []).reduce((acc, fieldName) => {
-      var formattedFieldName = formatFieldName(fieldName)
-
-      acc.push({
-        name: `${formattedFieldName} (Low-to-High)`,
-        value: fieldName,
-        direction: "asc"
-      });
-
-      acc.push({
-        name: `${formattedFieldName} (High-to-Low)`,
-        value: fieldName,
-        direction: "desc"
-      });
-
-      return acc;
-    }, [])
-  ];
-}
-
-export function getFilterableFacetsFromEngine() {
-  return config.filterableFacets || [];
-}
-
-export function buildFacetsFromEngine() {
-  var facets = (config.facets || []).reduce((acc, facetField) => {
-    acc = acc || {};
-
-    acc[facetField] = {
-      type: "value",
-      size: 100,
-    };
-    return acc;
-  }, undefined)
+export function buildClientFacets() {
+  var facets = buildFacetsFromEngine(config)
 
   facets["date_joined"] = {
     type: "range",
@@ -124,39 +48,24 @@ export function buildFacetsFromEngine() {
   return facets;
 }
 
-export async function makeConfig(serviceUrl, searchUrl) {
-  const facets = buildFacetsFromEngine();
-
-  const resultFields = config.resultFields || [];
-  const searchFields = config.searchFields;
-
-  const searchOptions = {
-    result_fields: resultFields.reduce((acc, n) => {
-      acc = acc || {};
-      acc[n] = {
-        raw: {},
-        snippet: {
-          size: 100,
-          fallback: true
-        }
-      }
-      return acc;
-    }, undefined),
-    search_fields: searchFields
-  }
-
-  const connector = await configureConnector(serviceUrl, searchUrl);
-
-  if (connector) {
-    return ({
-      searchQuery: {
-        facets,
-        ...searchOptions
-      },
-      apiConnector: connector,
-      alwaysSearchOnInitialLoad: true
-    });
+export function formatClientFieldName(field) {
+  if (Object.keys(config.facetFieldNames).includes(field)) {
+    return config.facetFieldNames[field];
   } else {
-    return undefined;
+    return formatFieldName(field);
   }
+}
+
+export function buildClientSortOptions() {
+  return buildSortOptionsFromEngine(config);
+}
+
+export function makeClientConfig(serviceUrl, searchUrl) {
+  var facets = buildClientFacets()
+
+  return makeConfig(serviceUrl, searchUrl, config, facets);
+}
+
+export function getClientFilterableFacets() {
+  return getFilterableFacetsFromEngine(config);
 }

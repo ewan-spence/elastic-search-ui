@@ -5,7 +5,6 @@ import {
   Paging,
   PagingInfo,
   Result,
-  Results,
   ResultsPerPage,
   SearchBox,
   Sorting,
@@ -14,6 +13,8 @@ import {
 
 import { Layout, SingleLinksFacet } from "@elastic/react-search-ui-views";
 import "@elastic/react-search-ui-views/lib/styles/styles.css";
+
+import "./SearchBar.css";
 
 import React, { useEffect, useState } from "react";
 
@@ -33,8 +34,8 @@ export default function ClientsSearchBar({ serviceUrl, searchUrl }) {
   if (config) {
     return (
       <SearchProvider config={config}>
-        <WithSearch mapContextToProps={({ wasSearched }) => ({ wasSearched })}>
-          {({ wasSearched }) => {
+        <WithSearch mapContextToProps={({ results, wasSearched }) => ({ results, wasSearched })}>
+          {({ results, wasSearched }) => {
             return (
               <ErrorBoundary>
                 <Layout
@@ -59,8 +60,19 @@ export default function ClientsSearchBar({ serviceUrl, searchUrl }) {
                     </div>
                   }
                   bodyContent={
-                    <Results
-                      titleField="name" />
+                    results.map(res => {
+                      var formattedResult = Object.keys(res).reduce((acc, key) => {
+                        acc = acc || {}
+
+                        acc[formatClientFieldName(key)] = res[key]
+
+                        return acc;
+                      }, undefined)
+
+                      return <Result
+                        result={formattedResult}
+                        titleField="Name" />
+                    })
                   }
                   bodyHeader={
                     <React.Fragment>
